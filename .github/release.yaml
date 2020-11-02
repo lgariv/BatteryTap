@@ -1,18 +1,19 @@
-name: Beta 
+name: Release
 on:
   push:
     branches:
       - main
+
 jobs:
   build:
     name: Build App
     runs-on: macOS-latest
-    env:
-#      THEOS: theos
 
     steps:
+
     - name: Checkout
       uses: actions/checkout@master
+
     - name:  Cache dragon dependencies
       id: cache-deps
       uses: actions/cache@v2
@@ -24,26 +25,32 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
+
     - name: Install Dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: brew install ldid xz
+
     - name: Link ldid
       if: steps.cache-deps.outputs.cache-hit == 'true'
       run: |
         brew link libplist
         brew link ldid
+
     - name: Setup Dragon
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: bash <(curl -sL dr.krit.me)
+
     - name: Update Dragon
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: bash <(curl -sL dr.krit.me)
+
     - name: Build Package
       id: build_package
       run: |
         make package
         echo "::set-output name=package::$(ls -t packages | head -n1)"
         echo "::set-output name=exit_code::$?"
+
     - name: Manage Version
       if: ${{ steps.build_package.outputs.package != 0 }}
       run: |
@@ -59,6 +66,7 @@ jobs:
         fi
         exit 0
         set -e
+
     - name: Delete Old Prerelease (if there are any)
       uses: dev-drprasad/delete-tag-and-release@v0.1.2
       if: ${{ env.OLD_PRE_TAG != 0 && steps.build_package.outputs.package != 0 }}
@@ -66,6 +74,7 @@ jobs:
         tag_name: ${{ env.OLD_PRE_TAG }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       if: ${{ steps.build_package.outputs.package != 0 }}
       id: create_release
@@ -77,6 +86,7 @@ jobs:
         release_name: Beta v${{ env.TWEAK_VER }}
         draft: false
         prerelease: false
+
     - name: Upload Release Asset
       if: ${{ steps.build_package.outputs.package != 0 }}
       uses: actions/upload-release-asset@v1
