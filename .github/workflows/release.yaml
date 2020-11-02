@@ -56,8 +56,11 @@ jobs:
     - name: Update Dragon
       if: steps.cache-deps.outputs.cache-hit == 'true'
       run: |
+        set +e
         sudo ln -s ~/.dragonbuild/dragon /usr/local/bin/dragon
         dragon update
+        exit 0
+        set -e
 
     - name: Build Package
       id: build_package
