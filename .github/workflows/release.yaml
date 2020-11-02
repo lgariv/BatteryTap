@@ -51,7 +51,7 @@ jobs:
     - name: Build Package
       id: build_package
       run: |
-        make package
+        dragon build
         echo "::set-output name=package::$(ls -t packages | head -n1)"
         echo "::set-output name=exit_code::$?"
 
