@@ -55,7 +55,9 @@ jobs:
         cd $crd
     - name: Update Dragon
       if: steps.cache-deps.outputs.cache-hit == 'true'
-      run: dragon update
+      run: |
+        sudo ln -s ~/.dragonbuild/dragon /usr/local/bin/dragon
+        dragon update
 
     - name: Build Package
       id: build_package
