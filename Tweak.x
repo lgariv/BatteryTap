@@ -1,3 +1,6 @@
+@import Foundation;
+@import UIKit;
+
 @interface BCUIRingItemView : UIView
 @end
 

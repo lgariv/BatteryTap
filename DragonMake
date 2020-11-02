@@ -1,0 +1,17 @@
+---
+name: BatteryTap
+icmd: "killall -9 backboardd"
+
+all:
+  targetvers: 14.0
+  archs:
+    - arm64
+    - arm64e
+
+BatteryTap:
+  type: tweak
+  files:
+    - "Tweak.x"
+  frameworks:
+    - Foundation
+    - UIKit
