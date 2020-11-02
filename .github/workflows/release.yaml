@@ -30,7 +30,7 @@ jobs:
 
     - name: Install Dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: brew install ldid xz python3 dpkg perl
+      run: brew install ldid xz python3 dpkg perl ninja
 
     - name: Link ldid
       if: steps.cache-deps.outputs.cache-hit == 'true'
