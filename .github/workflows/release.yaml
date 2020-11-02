@@ -39,11 +39,14 @@ jobs:
 
     - name: Setup Dragon
       if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: bash <(curl -sL dr.krit.me)
+      run: |
+        set +e
+        bash <(curl -sL dr.krit.me)
+        set -e
 
     - name: Update Dragon
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: bash <(curl -sL dr.krit.me)
+      if: steps.cache-deps.outputs.cache-hit == 'true'
+      run: dragon update
 
     - name: Build Package
       id: build_package
