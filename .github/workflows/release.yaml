@@ -41,10 +41,45 @@ jobs:
     - name: Setup Dragon
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
-        set +e
-        bash <(curl -sL dr.krit.me)
-        set -e
-
+        export PrefixColor='\033[1;34m'
+        export BoldColor='\033[1;37m'
+        export NC='\033[0m'
+        crd=$PWD
+        if [[ $UID == 0 || $EUID == 0 ]]; then
+            printf "${PrefixColor}[Dragon]${BoldColor} Do not run this script as root.\n"
+            exit
+        fi
+        sudo -p "Password for installation: " printf "\n" || exit 1
+        need=""
+        command -v python3 >/dev/null 2>&1 || need+="python3 "
+        command -v ldid >/dev/null 2>&1 || need+="ldid "
+        command -v perl >/dev/null 2>&1 || need+="perl "
+        command -v dpkg >/dev/null 2>&1 || need+="dpkg "
+        if [ "$need" != "" ]; then
+          read -p "Using Brew To Install Dependencies (${need}). Press Enter to Continue." || exit 1
+          brew install $need
+          python3 -m pip install --user pyyaml regex
+        fi
+        distr=$(uname -s)
+        arch=$(uname -p)
+        if [ "$distr" == "Darwin" ]; then 
+            if [ "$arch" == "arm" ] || [ "$arch" == "arm64" ]; then iosInstall
+            else macosInstall
+            fi
+        else linuxInstall
+        fi
+        printf "${PrefixColor}[Dragon] ${BoldColor}Downloading DragonBuild...\n"
+        cd ~
+        git clone https://github.com/DragonBuild/DragonBuild.git
+        mv DragonBuild .dragonbuild
+        printf "${PrefixColor}[Dragon] ${BoldColor}Installing DragonBuild...\n"
+        source ~/.dragonbuild/internal/environment
+        cd ~/.dragonbuild 
+        git pull
+        git submodule update --init --recursive
+        cd ~
+        sudo ln -s ~/.dragonbuild/dragon /usr/local/bin/dragon
+        cd $crd
     - name: Update Dragon
       if: steps.cache-deps.outputs.cache-hit == 'true'
       run: dragon update
