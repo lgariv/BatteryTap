@@ -22,11 +22,12 @@ jobs:
         cache-name: cache-dragon-dependencies
       with:
         path: |
+          ~/Library/Python
           ~/.dragonbuild/
           /usr/local/Cellar/
-        key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-prep-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-${{ env.cache-name }}-
+          ${{ runner.os }}-prep-${{ env.cache-name }}-
 
     - name: Install Dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
